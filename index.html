@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHAKRA-BHARAT — Smart Indian Civilization Strategy Game</title>
+  
+  <!-- Google Fonts: Cinzel & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Primary Game Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient Indian Mandala Watermark -->
+  <div class="bg-mandala"></div>
+
+  <div id="app-container">
+    <!-- Main Top Navigation Header -->
+    <header class="main-nav-header">
+      <div class="nav-brand" onclick="navigateTo('home')" style="cursor: pointer;">
+        <img src="assets/icons/chakra.svg" alt="Chakra Emblem" />
+        <div>
+          <div class="nav-brand-title font-display gold-gradient-text">CHAKRA-BHARAT</div>
+          <div class="nav-brand-subtitle">Smart Indian Civilization Strategy</div>
+        </div>
+      </div>
+
+      <div class="nav-meta-group">
+        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="navigateTo('home')">🏠 HOME</button>
+        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="openVideoModal()">🎬 HOW TO PLAY</button>
+        <!-- Audio Mute / Unmute -->
+        <button type="button" class="btn btn-secondary" id="btn-audio-toggle" style="padding: 6px 12px; font-size: 0.85rem;" onclick="toggleAudio()" title="Toggle Sound">
+          🔊 AUDIO ON
+        </button>
+
+        <!-- Hardware Status Pill -->
+        <div class="status-pill" id="hw-status-pill" onclick="openSmartBoardModal()" style="cursor: pointer;" title="Click for Smart Board Hardware Monitor">
+          <div class="status-dot virtual" id="hw-status-dot"></div>
+          <span id="hw-status-text">VIRTUAL HARDWARE MODE</span>
+        </div>
+
+        <!-- Virtual Hardware Pad Toggle Button -->
+        <button type="button" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.82rem;" onclick="toggleVirtualTray()">
+          🎮 VIRTUAL CONTROLLER
+        </button>
+
+        <!-- Connected Strategy Board -->
+        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;" onclick="navigateTo('board')">
+          🗺️ STRATEGY BOARD
+        </button>
+
+        <!-- How To Play Button -->
+        <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.82rem;" onclick="openHowToPlayModal()">
+          ❓ GUIDE
+        </button>
+      </div>
+    </header>
+
+    <!-- Dynamic Page Mounting Point -->
+    <main id="page-mount">
+      <!-- Injected by app.js: pages/start.html, pages/game.html, or pages/result.html -->
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODALS & OVERLAYS
+       ========================================================================= -->
+
+  <!-- 1. CINEMATIC EVENT MODAL -->
+  <div class="modal-backdrop" id="event-modal" style="display: none;">
+    <div class="event-modal-card" id="event-card-inner">
+      <div class="event-badge-tag" id="modal-event-badge">CRISIS EVENT</div>
+      <h2 class="event-title-modal font-display" id="modal-event-title">Severe Drought</h2>
+      <div class="event-hindi-title font-display" id="modal-event-hindi">भीषण सूखा (Bheeshan Sookha)</div>
+      <p class="event-desc-text" id="modal-event-desc">
+        The summer monsoon has failed. Open wells evaporate and riverbeds crack under intense heat.
+      </p>
+
+      <!-- Consequence Evaluation Results -->
+      <div class="consequence-box" id="modal-consequence-box">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Hero Explanation Callout -->
+      <div class="hero-explanation-callout" id="modal-hero-callout">
+        <div class="hero-explanation-title">
+          <span>☸</span>
+          <span id="modal-hero-title">WHY DID THIS HAPPEN?</span>
+        </div>
+        <div class="hero-explanation-body" id="modal-hero-body">
+          Your civilization's previous physical infrastructure modified the outcome of this event.
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" style="padding: 12px 36px; font-size: 1rem;" onclick="dismissEventModal()">
+        ✓ CONFIRM & CONTINUE
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. BUILD CATALOG MODAL -->
+  <div class="modal-backdrop" id="build-modal" style="display: none;">
+    <div class="card" style="max-width: 800px; width: 100%; padding: 28px;">
+      <div class="card-header-bar">
+        <div>
+          <h3 class="font-display gold-text" style="font-size: 1.3rem;">Civilization Infrastructure Catalog</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">Construct buildings physically using RFID or select below</p>
+        </div>
+        <button type="button" class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeModal('build-modal')">✕</button>
+      </div>
+      <div id="build-catalog-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. TRADE DIPLOMACY MODAL -->
+  <div class="modal-backdrop" id="trade-modal" style="display: none;">
+    <div class="card" style="max-width: 700px; width: 100%; padding: 28px;">
+      <div class="card-header-bar">
+        <div>
+          <h3 class="font-display gold-text" style="font-size: 1.3rem;">Trade & Caravan Diplomacy</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">Exchange surplus commodities with other players or the Caravan Guild</p>
+        </div>
+        <button type="button" class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeModal('trade-modal')">✕</button>
+      </div>
+
+      <!-- Trade Mode Tabs -->
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button type="button" class="btn btn-secondary" id="tab-trade-player" onclick="switchTradeTab('player')">🤝 Player Diplomacy</button>
+        <button type="button" class="btn btn-secondary" id="tab-trade-caravan" onclick="switchTradeTab('caravan')">🐫 Caravan Merchant Guild</button>
+      </div>
+
+      <!-- Tab: Player Trade -->
+      <div id="trade-tab-player-content">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Target Civilization</label>
+            <select class="input-field" id="trade-target-player"></select>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">You Offer</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <select class="input-field" id="trade-offer-res">
+                <option value="food">🌾 Food</option>
+                <option value="water">💧 Water</option>
+                <option value="materials">🪨 Materials</option>
+                <option value="wealth">🪙 Wealth</option>
+              </select>
+              <input type="number" class="input-field" id="trade-offer-amt" min="1" max="10" value="1" />
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">&nbsp;</label>
+            <div style="height: 38px;"></div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">You Request</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <select class="input-field" id="trade-req-res">
+                <option value="wealth">🪙 Wealth</option>
+                <option value="materials">🪨 Materials</option>
+                <option value="water">💧 Water</option>
+                <option value="food">🌾 Food</option>
+              </select>
+              <input type="number" class="input-field" id="trade-req-amt" min="1" max="10" value="1" />
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="submitPlayerTrade()">
+          📤 PROPOSE TRADE
+        </button>
+      </div>
+
+      <!-- Tab: Caravan Guild -->
+      <div id="trade-tab-caravan-content" style="display: none;">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+          The Trans-Subcontinental Caravan Guild offers <strong>2-for-1 barter</strong> (or bonuses if you own a Market).
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Give 2x of:</label>
+            <select class="input-field" id="caravan-give-res">
+              <option value="food">🌾 Food (2)</option>
+              <option value="water">💧 Water (2)</option>
+              <option value="materials">🪨 Materials (2)</option>
+              <option value="wealth">🪙 Wealth (2)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted);">Receive 1x of:</label>
+            <select class="input-field" id="caravan-get-res">
+              <option value="wealth">🪙 Wealth (1)</option>
+              <option value="materials">🪨 Materials (1)</option>
+              <option value="water">💧 Water (1)</option>
+              <option value="food">🌾 Food (1)</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="submitCaravanTrade()">
+          🐫 BARTER WITH CARAVAN GUILD
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. SMART BOARD HARDWARE MONITOR MODAL (SMART BOARD SCREEN) -->
+  <div class="modal-backdrop" id="smartboard-modal" style="display: none;">
+    <div class="card" style="max-width: 800px; width: 100%; padding: 28px;">
+      <div class="card-header-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.6rem;">📟</span>
+          <div>
+            <h3 class="font-display gold-text" style="font-size: 1.3rem;">SMART BOARD — Hardware Monitor</h3>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Live Telemetry for ESP32, RFID Reader, OLED & Physical Controls</p>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeModal('smartboard-modal')">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Left: Hardware Status List -->
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="status-pill" style="justify-content: space-between; padding: 10px 14px;">
+            <span>Microcontroller (ESP32)</span>
+            <span id="hw-mon-esp32" style="font-weight: 700; color: #ECC94B;">● VIRTUAL MODE</span>
+          </div>
+          <div class="status-pill" style="justify-content: space-between; padding: 10px 14px;">
+            <span>RC522 RFID Reader</span>
+            <span id="hw-mon-rfid" style="font-weight: 700; color: #48BB78;">● ACTIVE (SPI GPIO 5,18,19,23)</span>
+          </div>
+          <div class="status-pill" style="justify-content: space-between; padding: 10px 14px;">
+            <span>OLED Display</span>
+            <span id="hw-mon-oled" style="font-weight: 700; color: #48BB78;">● ACTIVE (I2C GPIO 21,22)</span>
+          </div>
+          <div class="status-pill" style="justify-content: space-between; padding: 10px 14px;">
+            <span>Push Buttons</span>
+            <span style="font-weight: 700; color: #48BB78;">● READY (GPIO 25, 26, 27)</span>
+          </div>
+          <div class="status-pill" style="justify-content: space-between; padding: 10px 14px;">
+            <span>Status LEDs & Buzzer</span>
+            <span id="hw-mon-leds" style="font-weight: 700; color: #48BB78;">● READY (GPIO 16, 17, 33)</span>
+          </div>
+        </div>
+
+        <!-- Right: Virtual OLED Preview -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Simulated 0.96" OLED Display (128×64)</div>
+          <div style="background: #020408; border: 3px solid #3182CE; border-radius: 8px; height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--font-mono); color: #63B3ED; padding: 12px; text-align: center;">
+            <div id="oled-line-1" style="font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em;">CHAKRA-BHARAT</div>
+            <div id="oled-line-2" style="font-size: 0.85rem; color: #ECC94B; margin-top: 6px;">READY TO PLAY</div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+            Last Hardware Action: <span id="hw-last-action" style="color: var(--text-primary); font-family: var(--font-mono);">None</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. HOW TO PLAY / INNOVATION GUIDE MODAL -->
+  <div class="modal-backdrop" id="video-modal" style="display:none;">
+    <div class="modal-content" style="max-width:860px;width:94vw">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 class="font-display" style="margin:0;color:#f1c40f">🎬 HOW TO PLAY</h3>
+        <button type="button" class="btn btn-secondary" style="padding:4px 10px" onclick="closeVideoModal()">✕</button></div>
+      <video id="how-video" src="assets/video/how_to_play.mp4" controls playsinline preload="none" style="width:100%;border-radius:10px;border:2px solid #f1c40f;background:#000"></video>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="howtoplay-modal" style="display: none;">
+    <div class="card" style="max-width: 750px; width: 100%; padding: 28px;">
+      <div class="card-header-bar">
+        <h3 class="font-display gold-text" style="font-size: 1.3rem;">CHAKRA-BHARAT — Game Architecture & Innovation</h3>
+        <button type="button" class="btn btn-secondary" style="padding: 4px 10px;" onclick="closeModal('howtoplay-modal')">✕</button>
+      </div>
+      <div style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: column; gap: 14px;">
+        <div style="background: rgba(212, 175, 55, 0.1); border-left: 4px solid var(--gold-primary); padding: 12px 16px; border-radius: 6px;">
+          <strong class="gold-text">THE CENTRAL INNOVATION:</strong><br />
+          <strong>BUILD → SCAN → SYSTEM REMEMBERS → WORLD CHANGES → ADAPT → REBUILD</strong><br />
+          Physical infrastructure placed on the board dynamically changes how subsequent historical events (Droughts, Floods, Trade Booms) impact your civilization.
+        </div>
+        <div>
+          <strong style="color: var(--gold-light);">Four Core Resources:</strong><br />
+          🌾 <strong>Food:</strong> Nourishes population and agricultural strength.<br />
+          💧 <strong>Water:</strong> Essential for life; conserved through stepwells to survive Droughts.<br />
+          🪨 <strong>Materials:</strong> Timber & stone for constructing settlements.<br />
+          🪙 <strong>Wealth:</strong> Minted gold for trading and expanding markets.
+        </div>
+        <div>
+          <strong style="color: var(--gold-light);">Four Pillars of Civilization:</strong><br />
+          • <strong>Farm:</strong> Increases Food production each turn.<br />
+          • <strong>Water System (Baolis/Stepwells):</strong> Cuts Drought water loss from -3 down to -1! Protects against flood surges.<br />
+          • <strong>Market (Bazaars & Shrenis):</strong> Doubles Wealth bounty during Trade Booms (+4 vs +2).<br />
+          • <strong>Fort (Citadels/Durg):</strong> Defends stockpiles against disruptions and shortages.
+        </div>
+        <div>
+          <strong style="color: var(--gold-light);">Winning the Game (100 Points):</strong><br />
+          Evaluated across 6 criteria: Development (25), Resource Efficiency (20), Cultural Development (15), Sustainability (15), Adaptability (15), and Trade (10).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. QUICK DEMO MODAL -->
+  <div class="modal-backdrop" id="hero-demo-modal" style="display: none;">
+    <div class="card" style="max-width: 850px; width: 100%; padding: 32px; border: 2px solid var(--gold-primary); text-align: center;">
+      <div style="display: inline-block; padding: 4px 14px; background: rgba(49, 130, 206, 0.25); border: 1px solid #3182CE; border-radius: 20px; font-size: 0.78rem; font-weight: 700; color: #63B3ED; margin-bottom: 10px;">
+        CAUSE & EFFECT DEMONSTRATION
+      </div>
+      <h2 class="font-display gold-gradient-text" id="demo-step-title" style="font-size: 1.8rem; margin-bottom: 8px;">
+        Step 1: Civilizations Initialized
+      </h2>
+      <p id="demo-step-desc" style="font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 24px; max-width: 650px; margin-left: auto; margin-right: auto;">
+        Two civilizations are initialized. Player 1 will deploy physical Water System infrastructure.
+      </p>
+
+      <div id="demo-step-visual" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
+        <!-- Injected via JS -->
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 14px;">
+        <button type="button" class="btn btn-hero" id="btn-next-demo-step" style="padding: 12px 32px;" onclick="advanceDemoStep()">
+          NEXT STEP ➔
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('hero-demo-modal')">
+          EXIT DEMO
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIRTUAL HARDWARE TRAY (FOR JUDGES & DEVELOPMENT)
+       ========================================================================= -->
+  <div class="virtual-hardware-tray" id="virtual-hardware-tray">
+    <div class="virtual-tray-header" onclick="toggleVirtualTray()">
+      <div class="virtual-tray-title">
+        <span>🎮</span>
+        <span>VIRTUAL HARDWARE CONTROLLER</span>
+      </div>
+      <span id="tray-arrow-indicator" style="font-size: 0.8rem; color: var(--gold-light);">▲ EXPAND</span>
+    </div>
+    <div class="virtual-tray-body" id="virtual-tray-body" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label style="font-size: 0.75rem; color: var(--text-muted);">Target Player:</label>
+        <select class="input-field" id="virtual-target-player" style="width: 140px; margin: 0; padding: 4px 8px; font-size: 0.8rem;">
+          <option value="1">Player 1</option>
+          <option value="2">Player 2</option>
+          <option value="3">Player 3</option>
+          <option value="4">Player 4</option>
+        </select>
+      </div>
+
+      <!-- RFID Tags -->
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">RC522 RFID Tag Scanners:</div>
+        <div class="virtual-rfid-buttons">
+          <button type="button" class="virtual-rfid-btn" onclick="simulateRfid('FARM')">
+            <span>🌾</span> RFID: FARM
+          </button>
+          <button type="button" class="virtual-rfid-btn" onclick="simulateRfid('WATER_SYSTEM')">
+            <span>💧</span> RFID: WATER SYS
+          </button>
+          <button type="button" class="virtual-rfid-btn" onclick="simulateRfid('MARKET')">
+            <span>🪙</span> RFID: MARKET
+          </button>
+          <button type="button" class="virtual-rfid-btn" onclick="simulateRfid('FORT')">
+            <span>🛡️</span> RFID: FORT
+          </button>
+        </div>
+      </div>
+
+      <!-- Physical Push Buttons -->
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">ESP32 Push Buttons (GPIO):</div>
+        <div class="virtual-hw-buttons">
+          <button type="button" class="hw-pin-btn btn-confirm" onclick="simulateButton('CONFIRM')">
+            CONFIRM (25)
+          </button>
+          <button type="button" class="hw-pin-btn btn-next" onclick="simulateButton('NEXT')">
+            NEXT (26)
+          </button>
+          <button type="button" class="hw-pin-btn btn-event" onclick="simulateButton('EVENT')">
+            EVENT (27)
+          </button>
+        </div>
+      </div>
+
+      <!-- Serial Telemetry Monitor -->
+      <div class="serial-telemetry-preview" id="virtual-serial-log">
+        UART RX: READY (115200 BAUD)
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="assets/sounds/soundEngine.js"></script>
+  <script src="board.js"></script>
+  <script src="learn.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
